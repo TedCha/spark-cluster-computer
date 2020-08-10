@@ -115,9 +115,67 @@ The returned information should look like so:
     link/ether 7c:97:0d:a6:27:53 brd ff:ff:ff:ff:ff:ff
     inet 192.168.1.1/24 brd 192.168.0.255 scope global dynamic noprefixroute en
 ...
-
 </pre>
 
+The network interface name is the bolded `eth0` tag. We'll need this later.
+
+Next, you'll need to use nano or vim to edit the configuration files. In this tutorial, I'll be using nano. Use the following commands to edit the configuration file to disable automatic network configuration.
+
+```bash
+sudo nano /etc/cloud/cloud.cfg.d/99-disable-config.cfg
+```
+
+All you need to add is the following code:
+
+```cfg
+network: {config: disabled}
+```
+
+Then, you'll setup the static IP by editing the 50-cloud-init.yaml file. Use the following command:
+
+```bash
+sudo nano /etc/netplan/50-cloud-init.yaml
+```
+
+My configuration file looked like so:
+(X being the last digit of the specific IP address for each Pi; 10.1.2.121, 10.1.2.122, 10.1.2.123, etc.)
+
+```yaml
+network:
+    ethernets:
+        eth0:
+            dhcp4: false
+            addresses: [10.1.2.12X/24]
+            gateway4: 10.1.2.1
+            nameservers:
+                addresses: [10.1.2.1, 8.8.8.8]
+    version: 2
+```
+
+The basic template is:
+```yaml
+network:
+    ethernets:
+        {network interface name}:
+            dhcp4: false
+            addresses: [{Specifc IP Adress}/24]
+            gateway4: {Gateway Address}
+            nameservers:
+                addresses: [{Gateway Address}, 8.8.8.8]
+    version: 2
+```
+
+After edit the file, apply the settings by using the following commands:
+
+```bash
+sudo netplan try
+```
+
+```bash
+sudo netplan apply
+```
+
+Then reboot the Pi and confirm the static IP address is set correctly.
 ## Hadoop Installation
 
 ## Spark Installation
