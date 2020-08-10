@@ -5,8 +5,9 @@ Project that details the creation of a Spark Cluster using Raspberry Pi 4 and Ub
 
 ## Physical Cluster Setup
 1. Pi/Server Rack
+
 To start the setup, install your Raspberry Pis on the server rack casing. You can find these cases for cheap on Amazon.
-![Server Rack 1](./assets/images/physical_1.jpg)
+<img src="./assets/images/physical_1.jpg" width=300px">
 2. 
 
 ## Individual Raspberry Pi Setup
