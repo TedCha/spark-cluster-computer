@@ -4,7 +4,7 @@ Project that details the creation of a Spark Cluster using Raspberry Pi 4 and Ub
 ## Introduction
 
 ## Physical Cluster Setup
-#### 1. Server Rack
+### 1. Server Rack
 
 To start the setup, install your Raspberry Pis on the server rack casing. You can find these cases for cheap on Amazon.
 
@@ -14,7 +14,7 @@ To start the setup, install your Raspberry Pis on the server rack casing. You ca
   <img src="./assets/images/physical_4.jpg" width="250" />
 </p>
 
-#### 2. Network Connection
+### 2. Network Connection
 
 For my setup, I used a wired ethernet connection from my router which was then routed to my Netgear 4-port 100 Mbps Switch. Then, I connected each Raspberry Pi to the switch via a 1-foot ethernet cable.
 
@@ -24,9 +24,9 @@ For my setup, I used a wired ethernet connection from my router which was then r
   <img src="./assets/images/physical_8.jpg" width="250" />
 </p>
 
-#### 3. Power Supply
+### 3. Power Supply
 
-I used a ![RAVPower 4-Port USB Power Supply](https://www.amazon.com/Charging-Station-RAVPower-Charger-Compatible/dp/B00OT6YUIY/ref=sr_1_4?dchild=1&keywords=ravpower+4+port&qid=1597074773&sr=8-4) to power my Raspberry Pi. As they are Raspberry Pi 4s, they all use USB-C as a power supply.
+I used a [RAVPower 4-Port USB Power Supply](https://www.amazon.com/Charging-Station-RAVPower-Charger-Compatible/dp/B00OT6YUIY/ref=sr_1_4?dchild=1&keywords=ravpower+4+port&qid=1597074773&sr=8-4) to power my Raspberry Pi. As they are Raspberry Pi 4s, they all use USB-C as a power supply.
 
 <p float="left">
   <img src="./assets/images/physical_9.jpg" width="250" />
@@ -36,7 +36,7 @@ I used a ![RAVPower 4-Port USB Power Supply](https://www.amazon.com/Charging-Sta
 
 ## Individual Raspberry Pi Setup
 
-#### 1. Ubuntu Server LTS 20.04 Installation
+### 1. Ubuntu Server LTS 20.04 Installation
 
 Use the ![Raspberry Pi Imager](https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi#2-prepare-the-sd-card) to write the Ubuntu Server LTS 20.04 64 Bit to each pi.
 
@@ -44,7 +44,7 @@ Use the ![Raspberry Pi Imager](https://ubuntu.com/tutorials/how-to-install-ubunt
   <img src="https://ubuntucommunity.s3.dualstack.us-east-2.amazonaws.com/optimized/2X/3/3bd138fa7bcddc12f303c9c26a004601ace296b8_2_690x439.png"/>
 </p>
 
-#### 2. Pi Configuration
+### 2. Pi Configuration
 
 SSH into each Pi individually and setup some basic configuration. Use this net-tools command to find the IP address of each Pi.
 
@@ -93,7 +93,7 @@ sudo reboot
 
 The following steps will need to be done on each Pi.
 
-#### 1. Static IP Setup
+### 1. Static IP Setup
 
 Ubuntu Server LTS 20.04 requires Netplan for network configuration. Specifically, editing a few yaml files.
 
@@ -177,7 +177,7 @@ sudo netplan apply
 
 Then reboot the Pi and confirm the static IP address is set correctly.
 
-#### 2. Hosts/Hostname Configuration
+### 2. Hosts/Hostname Configuration
 
 On each Pi, you'll have to edit the hosts and hostnames files to the specific Pi information. First we'll update the hostname file using the following command:
 
@@ -227,7 +227,7 @@ While editing the hosts file, make sure to delete the localhost 127.0.0.1 instan
 
 Now reboot the Pi and repeat the steps on the rest of the nodes. Note, the hostname file will be different for each node, but the hosts file should be exactly the same.
 
-#### 3. Public Key SSH Authentication Configuration
+### 3. Public Key SSH Authentication Configuration
 
 First, edit the ssh config file on the Pi using the following command:
 
@@ -335,7 +335,7 @@ PasswordAuthentication no
 Now you should be able to ssh into any Pi from any of the Pis without providing a password.
 
 
-#### 4. Cluster Ease of Use Functions
+### 4. Cluster Ease of Use Functions
 
 This step entails editing the `.bashrc` file in order to create some custom functions for ease of use. 
 
@@ -406,7 +406,46 @@ Lastly, run the following command to source the .bashrc file on all nodes:
 ```bash
 cluster-cmd source ~/.bashrc
 ```
+You now have a functioning cluster computer. In order to start running parallel processing tasks, we'll have to install Hadoop and then Spark.
 
-## Hadoop Installation
+## Hadoop 3.2.1 Installation
 
+### 1. Install Java 8
+
+To install Java 8 on each node, use the following command:
+
+```bash
+cluster-cmd sudo apt install openjdk-8-jdk
+```
+
+### 2. Hadoop Single Node Installation
+
+Next, download the Hadoop 3.2.1 binary onto your machine. You can get the binary from the [Apache Hadoop website](https://hadoop.apache.org/releases.html) and use wget to download it on to the Pi.
+
+```bash
+wget https://downloads.apache.org/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz
+```
+
+Next, extract the tar and move the binary to the /opt directory using the following command:
+
+```bash
+sudo tar -xvf hadoop-3.2.1.tar.gz -C /opt/
+```
+Then remove the tar file and cd into /opt/.
+
+```bash
+rm hadoop-3.2.1.tar.gz && cd /opt
+```
+
+Change the name of the directory in /opt from hadoop-3.2.1 to hadoop:
+
+```bash
+sudo mv hadoop-3.2.1 hadoop
+```
+
+Change the permissions on the directory.
+
+```bash
+sudo chown ubuntu:ubutnu -R /opt/hadoop
+```
 ## Spark Installation
