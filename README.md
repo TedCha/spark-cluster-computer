@@ -156,7 +156,7 @@ The basic template is:
 ```yaml
 network:
     ethernets:
-        {network interface name}:
+        {Network Interface Name}:
             dhcp4: false
             addresses: [{Specifc IP Adress}/24]
             gateway4: {Gateway Address}
@@ -176,6 +176,7 @@ sudo netplan apply
 ```
 
 Then reboot the Pi and confirm the static IP address is set correctly.
+
 ## Hadoop Installation
 
 ## Spark Installation
