@@ -36,6 +36,9 @@ I used a ![RAVPower 4-Port USB Power Supply](https://www.amazon.com/Charging-Sta
 
 ## Individual Raspberry Pi Setup
 
+#### 1. Ubuntu Server LTS 20.04 Installation
+
+
 ## Cluster Setup
 
 ## Hadoop Installation
