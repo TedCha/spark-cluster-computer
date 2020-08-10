@@ -219,7 +219,7 @@ ff02::3 ip6-allhosts
 10.1.2.123 pi03
 ```
 
-While editing the hosts file, make sure to delete the localhost 127.0.0.1 instance from the file. The template for adding nodes to the hosts file is:
+While editing the hosts file, make sure to delete the localhost 127.0.0.1 instance from the file. The template for adding additional nodes to the hosts file is:
 
 ```
 {IP Address} {hostname}
@@ -229,6 +229,113 @@ Now reboot the Pi and repeat the steps on the rest of the nodes. Note, the hostn
 
 #### 3. Public Key SSH Authentication Configuration
 
+First, edit the ssh config file on the Pi using the following command:
+
+```bash
+nano ~/.ssh/config
+```
+
+Your config file should look like so: 
+
+```
+Host pi01
+User ubuntu
+Hostname 10.1.2.121
+
+Host pi02
+User ubuntu
+Hostname 10.1.2.122
+
+Host pi03
+User ubuntu
+Hostname 10.1.2.123
+```
+
+The template for adding more nodes to the config file is:
+
+```
+Host pi0X
+User ubuntu
+Hostname {IP Address}
+```
+
+Next, create an SSH key pair on the Pi using:
+
+```bash
+ssh-keygen -t rsa -b 4096
+```
+
+You'll be prompted a few times. Press enter through them rather than change anything because the key pair needs to exist in the .ssh directory and the key pair should be passwordless.
+
+The output should look similar to this:
+
+```
+Your identification has been saved in /your_home/.ssh/id_rsa
+Your public key has been saved in /your_home/.ssh/id_rsa.pub
+The key fingerprint is:
+SHA256:/hk7MJ5n5aiqdfTVUZr+2Qt+qCiS7BIm5Iv0dxrc3ks user@host
+The key's randomart image is:
++---[RSA 4096]----+
+|                .|
+|               + |
+|              +  |
+| .           o . |
+|o       S   . o  |
+| + o. .oo. ..  .o|
+|o = oooooEo+ ...o|
+|.. o *o+=.*+o....|
+|    =+=ooB=o.... |
++----[SHA256]-----+
+```
+
+Now, repeat the SSH keygen on Pi 2 and 3. 
+
+Then use the following command to copy the public keys from Pi 2 and 3 to Pi 1.
+
+```bash
+ssh-copy-id pi01@10.1.2.121
+```
+
+If your IP address/hostname is different than mine, the template is:
+
+```bash
+ssh-copy-id {hostname}@{IP Address}
+```
+
+Then SSH back into Pi 1 and use the following command to copy Pi 1's public key into it's authorized keys:
+
+```bash
+ssh-copy-id pi01
+```
+
+Finally, you can copy Pi 1's configuration files to the rest of the Pi's using the following commands:
+
+```bash
+scp ~/.ssh/authorized_keys pi0X:~/.ssh/authorized_keys
+```
+
+```bash
+scp ~/.ssh/config pi0X:~/.ssh/config
+```
+
+The last step is disable Password Authentication in the ssh config files using the following command:
+
+```bash
+sudo nano /etc/ssh/sshd_config
+```
+
+In the file, you'll find an configuration called `PasswordAuthentication`. If it's commented out, uncomment it and set the value to no. It should look like this:
+
+```
+...
+PasswordAuthentication no
+...
+```
+
+Now you should be able to ssh into any Pi from any of the Pis without providing a password.
+
+
+#### 4. Cluster Functions
 
 ## Hadoop Installation
 
