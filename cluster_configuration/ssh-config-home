@@ -1,0 +1,11 @@
+Host pi01
+User ubuntu
+Hostname 10.1.2.121
+
+Host pi02
+User ubuntu
+Hostname 10.1.2.122
+
+Host pi03
+User ubuntu
+Hostname 10.1.2.123
