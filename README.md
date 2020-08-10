@@ -64,7 +64,7 @@ timedatectl status
 
 You should be returned this prompt:
 
-```bash
+```
                Local time: Mon 2020-08-10 12:24:54 EDT  
            Universal time: Mon 2020-08-10 16:24:54 UTC  
                  RTC time: Mon 2020-08-10 16:24:54      
@@ -90,6 +90,33 @@ sudo apt upgrade
 sudo reboot
 ```
 ## Cluster Setup
+
+The following steps will need to be done on each Pi.
+
+#### 1. Static IP Setup
+
+Ubuntu Server LTS 20.04 requires Netplan for network configuration. Specifically, editing a few yaml files.
+
+First, find the name of your network interface name by running:
+
+```bash
+ip a
+```
+
+The returned information should look like so:
+```
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: <b>eth0</b>: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 7c:97:0d:a6:27:53 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.1/24 brd 192.168.0.255 scope global dynamic noprefixroute en
+...
+...
+```
 
 ## Hadoop Installation
 
