@@ -420,6 +420,7 @@ cluster-cmd sudo apt install openjdk-8-jdk
 
 ### 2. Hadoop Single Node Installation
 
+#### Download Hadoop
 Next, download the Hadoop 3.2.1 binary onto your machine. You can get the binary from the [Apache Hadoop website](https://hadoop.apache.org/releases.html) and use wget to download it on to the Pi.
 
 ```bash
@@ -448,4 +449,27 @@ Change the permissions on the directory.
 ```bash
 sudo chown ubuntu:ubutnu -R /opt/hadoop
 ```
+#### Setup .bashrc Environment Variables
+
+Edit the `.bashrc` file to include the following environmental variables at the bottom of the file.
+
+```bash
+# path and options for java
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-arm64
+
+# path and options for Hadoop
+export HADOOP_HOME=/opt/hadoop
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export HADOOP_INSTALL=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
+```
+
 ## Spark Installation
