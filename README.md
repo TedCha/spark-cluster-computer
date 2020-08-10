@@ -41,9 +41,54 @@ I used a ![RAVPower 4-Port USB Power Supply](https://www.amazon.com/Charging-Sta
 Use the ![Raspberry Pi Imager](https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi#2-prepare-the-sd-card) to write the Ubuntu Server LTS 20.04 64 Bit to each pi.
 
 <p float="left">
-  <img src="https://ubuntucommunity.s3.dualstack.us-east-2.amazonaws.com/optimized/2X/3/3bd138fa7bcddc12f303c9c26a004601ace296b8_2_690x439.png" width="250" />
+  <img src="https://ubuntucommunity.s3.dualstack.us-east-2.amazonaws.com/optimized/2X/3/3bd138fa7bcddc12f303c9c26a004601ace296b8_2_690x439.png"/>
 </p>
 
+#### 2. Pi Configuration
+
+SSH into each Pi individually and setup some basic configuration. Use this net-tools command to find the IP address of each Pi.
+
+```bash
+arp -na | grep -i "dc:a6:32"
+```
+
+If that doesn't work, you can also use your router admin interface to see a list of connected devices.
+
+After you're connected you'll be prompted to change the password. Change it to the same password on each Pi; something secure but easy to remember. 
+
+Ensure that each Pi has their time synchronized using the following command:
+
+```bash
+timedatectl status
+```
+
+You should be returned this prompt:
+
+```bash
+               Local time: Mon 2020-08-10 12:24:54 EDT  
+           Universal time: Mon 2020-08-10 16:24:54 UTC  
+                 RTC time: Mon 2020-08-10 16:24:54      
+                Time zone: America/New_York (EDT, -0400)
+System clock synchronized: yes                          
+              NTP service: active                       
+          RTC in local TZ: no          
+```
+
+If the system clock is synchronized and NTP service is active on each Pi, you're good to go. 
+
+Lastly, run the following commands on each Pi to finish individual configuration:
+
+```bash
+sudo apt update
+```
+
+```bash
+sudo apt upgrade
+```
+
+```bash
+sudo reboot
+```
 ## Cluster Setup
 
 ## Hadoop Installation
