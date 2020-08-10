@@ -177,6 +177,59 @@ sudo netplan apply
 
 Then reboot the Pi and confirm the static IP address is set correctly.
 
+#### 2. Hosts/Hostname Configuration
+
+On each Pi, you'll have to edit the hosts and hostnames files to the specific Pi information. First we'll update the hostname file using the following command:
+
+```bash
+sudo nano /etc/hostname
+```
+
+The hostname file should like so (X being the last digit of the specific IP address for each Pi):
+
+```
+pi0X
+```
+
+For example, the hostname file for pi01 will look like:
+
+```
+pi01
+```
+
+Next, we'll have to update the hosts file using the following command:
+
+```bash
+sudo nano /etc/hosts
+```
+
+The hosts file should look like so after editing:
+
+```
+# The following lines are desirable for IPv6 capable hosts
+::1 ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+
+10.1.2.121 pi01
+10.1.2.122 pi02
+10.1.2.123 pi03
+```
+
+While editing the hosts file, make sure to delete the localhost 127.0.0.1 instance from the file. The template for adding nodes to the hosts file is:
+
+```
+{IP Address} {hostname}
+```
+
+Now reboot the Pi and repeat the steps on the rest of the nodes. Note, the hostname file will be different for each node, but the hosts file should be exactly the same.
+
+#### 3. Public Key SSH Authentication Configuration
+
+
 ## Hadoop Installation
 
 ## Spark Installation
