@@ -335,7 +335,77 @@ PasswordAuthentication no
 Now you should be able to ssh into any Pi from any of the Pis without providing a password.
 
 
-#### 4. Cluster Functions
+#### 4. Cluster Ease of Use Functions
+
+This step entails editing the `.bashrc` file in order to create some custom functions for ease of use. 
+
+On the master Pi, we'll first edit the ~/.bashrc file:
+
+```bash
+nano ~/.bashrc
+```
+
+Within this file, add the following code to the bottom of the file:
+
+```bash
+# cluster management functions
+
+#   list what other nodes are in the cluster
+function cluster-other-nodes {
+    grep "pi" /etc/hosts | awk '{print $2}' | grep -v $(hostname)
+}
+
+#   execute a command on all nodes in the cluster
+function cluster-cmd {
+    for node in $(cluster-other-nodes);
+    do
+        echo $node;
+        ssh $node "$@";
+    done
+    cat /etc/hostname; $@
+}
+
+#   reboot all nodes in the cluster
+function cluster-reboot {
+    cluster-cmd sudo reboot now
+}
+
+#   shutdown all nodes in the cluster
+function cluster-shutdown {
+    cluster-cmd sudo shutdown now
+}
+
+function cluster-scp {
+    for node in $(cluster-other-nodes);
+    do
+        echo "${node} copying...";
+        cat $1 | ssh $node "sudo tee $1" > /dev/null 2>&1;
+    done
+    echo 'all files copied successfully'
+}
+
+#   start yarn and dfs on cluster
+function cluster-start-hadoop {
+    start-dfs.sh; start-yarn.sh
+}
+
+#   stop yarn and dfs on cluster
+function cluster-stop-hadoop {
+    stop-dfs.sh; stop-yarn.sh
+}
+```
+
+Now use the following command to copy the .bashrc to all the worker nodes:
+
+```bash
+cluster-scp ~/.bashrc
+```
+
+Lastly, run the following command to source the .bashrc file on all nodes:
+
+```bash
+cluster-cmd source ~/.bashrc
+```
 
 ## Hadoop Installation
 
