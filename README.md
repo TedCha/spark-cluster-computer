@@ -104,7 +104,7 @@ ip a
 ```
 
 The returned information should look like so:
-```
+<pre>
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
@@ -115,8 +115,8 @@ The returned information should look like so:
     link/ether 7c:97:0d:a6:27:53 brd ff:ff:ff:ff:ff:ff
     inet 192.168.1.1/24 brd 192.168.0.255 scope global dynamic noprefixroute en
 ...
-...
-```
+
+</pre>
 
 ## Hadoop Installation
 
