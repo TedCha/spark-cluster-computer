@@ -432,10 +432,10 @@ Next, extract the tar and move the binary to the /opt directory using the follow
 ```bash
 sudo tar -xvf hadoop-3.2.1.tar.gz -C /opt/
 ```
-Then remove the tar file and cd into /opt/.
+Then, cd into /opt/.
 
 ```bash
-rm hadoop-3.2.1.tar.gz && cd /opt
+cd /opt
 ```
 
 Change the name of the directory in /opt from hadoop-3.2.1 to hadoop:
@@ -760,5 +760,65 @@ It should look like this:
 pi02
 pi03
 ```
+
+#### Copy Hadoop Configuration to the rest of Nodes
+
+Use the following command to copy all files from the master node to the worker nodes:
+
+```bash
+for pi in $(cluster-other-nodes); do rsync -avxP /opt/hadoop $pi:/opt; done
+```
+
+After everything is copied, you can verify that Hadoop was installed correctly using:
+
+```bash
+cluster-cmd hadoop version | grep Hadoop
+```
+
+#### Format the HDFS
+
+To run for the first time, the HDFS needs to be formatted:
+
+```bash
+hdfs namenode -format
+```
+
+#### Run HDFS and YARN
+
+To start the HDFS, run the following command on the master node:
+
+```bash
+start-dfs.sh
+```
+
+To start Yarn, run the following command:
+
+```bash
+start-yarn.sh
+```
+
+Ensure that everything is working by running the following command on all nodes:
+
+```bash
+jps
+```
+
+On the master node, `jps` should return:
+
+```
+Jps
+NameNode
+SecondaryNameNode
+ResourceManager
+```
+On the worker nodes, `jps` should return:
+
+```
+Jps
+DataNode
+NodeManager
+```
+
+Congragulations! You now have a working YARN cluster!
 
 ## Spark Installation
