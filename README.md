@@ -449,7 +449,7 @@ Change the permissions on the directory.
 ```bash
 sudo chown ubuntu:ubutnu -R /opt/hadoop
 ```
-#### Setup .bashrc Environment Variables
+#### Setup .bashrc and hadoop-env.sh Environment Variables
 
 Edit the `.bashrc` file to include the following environmental variables at the bottom of the file.
 
@@ -472,4 +472,48 @@ export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
 export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
 ```
 
+Next, set the value of `JAVA_HOME` in /opt/hadoop/etc/hadoop/hadoop-env.sh. You'll have to scroll down to find the correct line. It should look like this:
+
+```bash
+...
+# The java implementation to use. By default, this environment
+# variable is REQUIRED on ALL platforms except OS X!
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-arm64
+...
+```
+
+#### Setup the core-site.xml and hdfs-site.xml
+
+Use the following command to edit the core-site.xml file.
+
+```bash
+sudo nano /opt/hadoop/etc/hadoop/core-site.xml
+```
+
+It should look like so after editing:
+
+```xml
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://pi01:9000</value>
+    </property>
+</configuration>
+```
+
+Then edit the hdfs-site.xml file:
+```bash
+sudo nano /opt/hadoop/etc/hadoop/hdfs-site.xml
+```
+
+After editing:
+
+```xml
+<configuration>
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
+</configuration>
+```
 ## Spark Installation
