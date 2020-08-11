@@ -19,6 +19,6 @@
 <configuration>
     <property>
         <name>fs.default.name</name>
-        <value>hdfs://PI01:9000</value>
+        <value>hdfs://pi01:9000</value>
     </property>
 </configuration>
