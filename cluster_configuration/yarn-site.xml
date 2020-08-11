@@ -19,7 +19,7 @@
     </property>
     <property>
         <name>yarn.resourcemanager.hostname</name>
-        <value>PI01</value>
+        <value>pi01</value>
     </property>
     <property>
         <name>yarn.nodemanager.aux-services</name>
