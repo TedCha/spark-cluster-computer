@@ -72,7 +72,7 @@ Use the [Raspberry Pi Imager](https://ubuntu.com/tutorials/how-to-install-ubuntu
 SSH into each Pi individually and setup some basic configuration. Use this net-tools command to find the IP address of each Pi.
 
 ```bash
-arp -na | grep -i "dc:a6:32"
+$ arp -na | grep -i "dc:a6:32"
 ```
 
 If that doesn't work, you can also use your router admin interface to see a list of connected devices.
@@ -82,7 +82,7 @@ After you're connected you'll be prompted to change the password. Change it to t
 Ensure that each Pi has their time synchronized using the following command:
 
 ```bash
-timedatectl status
+$ timedatectl status
 ```
 
 You should be returned this prompt:
@@ -102,15 +102,9 @@ If the system clock is synchronized and NTP service is active on each Pi, you're
 Lastly, run the following commands on each Pi to finish individual configuration:
 
 ```bash
-sudo apt update
-```
-
-```bash
-sudo apt upgrade
-```
-
-```bash
-sudo reboot
+$ sudo apt update
+$ sudo apt upgrade
+$ sudo reboot
 ```
 ## Cluster Setup
 
@@ -123,7 +117,7 @@ Ubuntu Server LTS 20.04 requires Netplan for network configuration. Specifically
 First, find the name of your network interface name by running:
 
 ```bash
-ip a
+$ ip a
 ```
 
 The returned information should look like so:
@@ -145,7 +139,7 @@ The network interface name is the bolded `eth0` tag. We'll need this later.
 Next, you'll need to use nano or vim to edit the configuration files. In this tutorial, I'll be using nano. Use the following commands to edit the configuration file to disable automatic network configuration.
 
 ```bash
-sudo nano /etc/cloud/cloud.cfg.d/99-disable-config.cfg
+$ sudo nano /etc/cloud/cloud.cfg.d/99-disable-config.cfg
 ```
 
 All you need to add is the following code:
@@ -157,7 +151,7 @@ network: {config: disabled}
 Then, you'll setup the static IP by editing the 50-cloud-init.yaml file. Use the following command:
 
 ```bash
-sudo nano /etc/netplan/50-cloud-init.yaml
+$ sudo nano /etc/netplan/50-cloud-init.yaml
 ```
 
 My configuration file looked like so:
@@ -191,11 +185,8 @@ network:
 After edit the file, apply the settings by using the following commands:
 
 ```bash
-sudo netplan try
-```
-
-```bash
-sudo netplan apply
+$ sudo netplan try
+$ sudo netplan apply
 ```
 
 Then reboot the Pi and confirm the static IP address is set correctly.
@@ -205,7 +196,7 @@ Then reboot the Pi and confirm the static IP address is set correctly.
 On each Pi, you'll have to edit the hosts and hostnames files to the specific Pi information. First we'll update the hostname file using the following command:
 
 ```bash
-sudo nano /etc/hostname
+$ sudo nano /etc/hostname
 ```
 
 The hostname file should like so (X being the last digit of the specific IP address for each Pi):
@@ -223,7 +214,7 @@ pi01
 Next, we'll have to update the hosts file using the following command:
 
 ```bash
-sudo nano /etc/hosts
+$ sudo nano /etc/hosts
 ```
 
 The hosts file should look like so after editing:
@@ -255,7 +246,7 @@ Now reboot the Pi and repeat the steps on the rest of the nodes. Note, the hostn
 First, edit the ssh config file on the Pi using the following command:
 
 ```bash
-nano ~/.ssh/config
+$ nano ~/.ssh/config
 ```
 
 Your config file should look like so: 
@@ -285,7 +276,7 @@ Hostname {IP Address}
 Next, create an SSH key pair on the Pi using:
 
 ```bash
-ssh-keygen -t rsa -b 4096
+$ ssh-keygen -t rsa -b 4096
 ```
 
 You'll be prompted a few times. Press enter through them rather than change anything because the key pair needs to exist in the .ssh directory and the key pair should be passwordless.
@@ -316,35 +307,35 @@ Now, repeat the SSH keygen on Pi 2 and 3.
 Then use the following command to copy the public keys from Pi 2 and 3 to Pi 1.
 
 ```bash
-ssh-copy-id pi01@10.1.2.121
+$ ssh-copy-id pi01@10.1.2.121
 ```
 
 If your IP address/hostname is different than mine, the template is:
 
 ```bash
-ssh-copy-id {hostname}@{IP Address}
+$ ssh-copy-id {hostname}@{IP Address}
 ```
 
 Then SSH back into Pi 1 and use the following command to copy Pi 1's public key into it's authorized keys:
 
 ```bash
-ssh-copy-id pi01
+$ ssh-copy-id pi01
 ```
 
 Finally, you can copy Pi 1's configuration files to the rest of the Pi's using the following commands:
 
 ```bash
-scp ~/.ssh/authorized_keys pi0X:~/.ssh/authorized_keys
+$ scp ~/.ssh/authorized_keys pi0X:~/.ssh/authorized_keys
 ```
 
 ```bash
-scp ~/.ssh/config pi0X:~/.ssh/config
+$ scp ~/.ssh/config pi0X:~/.ssh/config
 ```
 
 The last step is disable Password Authentication in the ssh config files using the following command:
 
 ```bash
-sudo nano /etc/ssh/sshd_config
+$ sudo nano /etc/ssh/sshd_config
 ```
 
 In the file, you'll find an configuration called `PasswordAuthentication`. If it's commented out, uncomment it and set the value to no. It should look like this:
@@ -365,7 +356,7 @@ This step entails editing the `.bashrc` file in order to create some custom func
 On the master Pi, we'll first edit the ~/.bashrc file:
 
 ```bash
-nano ~/.bashrc
+$ nano ~/.bashrc
 ```
 
 Within this file, add the following code to the bottom of the file:
@@ -438,7 +429,7 @@ You now have a functioning cluster computer. In order to start running parallel 
 To install Java 8 on each node, use the following command:
 
 ```bash
-cluster-cmd sudo apt install openjdk-8-jdk
+$ cluster-cmd sudo apt install openjdk-8-jdk
 ```
 
 ### 2. Hadoop Single Node Installation
@@ -447,30 +438,30 @@ cluster-cmd sudo apt install openjdk-8-jdk
 Next, download the Hadoop 3.2.1 binary onto your machine. You can get the binary from the [Apache Hadoop website](https://hadoop.apache.org/releases.html) and use wget to download it on to the Pi.
 
 ```bash
-wget https://downloads.apache.org/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz
+$ wget https://downloads.apache.org/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz
 ```
 
 Next, extract the tar and move the binary to the /opt directory using the following command:
 
 ```bash
-sudo tar -xvf hadoop-3.2.1.tar.gz -C /opt/
+$ sudo tar -xvf hadoop-3.2.1.tar.gz -C /opt/
 ```
 Then, cd into /opt/.
 
 ```bash
-cd /opt
+$ cd /opt
 ```
 
 Change the name of the directory in /opt from hadoop-3.2.1 to hadoop:
 
 ```bash
-sudo mv hadoop-3.2.1 hadoop
+$ sudo mv hadoop-3.2.1 hadoop
 ```
 
 Change the permissions on the directory.
 
 ```bash
-sudo chown ubuntu:ubutnu -R /opt/hadoop
+$ sudo chown ubuntu:ubutnu -R /opt/hadoop
 ```
 #### Setup .bashrc and hadoop-env.sh Environment Variables
 
@@ -510,7 +501,7 @@ export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-arm64
 Use the following command to edit the core-site.xml file.
 
 ```bash
-sudo nano /opt/hadoop/etc/hadoop/core-site.xml
+$ sudo nano /opt/hadoop/etc/hadoop/core-site.xml
 ```
 
 It should look like so after editing:
@@ -526,7 +517,7 @@ It should look like so after editing:
 
 Then edit the hdfs-site.xml file:
 ```bash
-sudo nano /opt/hadoop/etc/hadoop/hdfs-site.xml
+$ sudo nano /opt/hadoop/etc/hadoop/hdfs-site.xml
 ```
 
 After editing:
@@ -545,44 +536,44 @@ After editing:
 Format the NameNode (THIS WILL DELETE ALL DATA IN THE HDFS!):
 
 ```bash
-hdfs namenode -format
+$ hdfs namenode -format
 ```
 
 Start the NameNode and DataNode:
 
 ```bash
-start-dfs.sh
+$ start-dfs.sh
 ```
 
 Make the required directories to run MapReduce jobs:
 
 ```bash
-hdfs dfs -mkdir /user
-hdfs dfs -mkdir /user/{username}
+$ hdfs dfs -mkdir /user
+$ hdfs dfs -mkdir /user/{username}
 ```
 
 Copy input files into the distributed filesystem:
 
 ```bash
-hdfs dfs -mkdir input
-hdfs dfs -put /opt/hadoop/etc/hadoop/*.xml input
+$ hdfs dfs -mkdir input
+$ hdfs dfs -put /opt/hadoop/etc/hadoop/*.xml input
 ```
 
 Run the test example:
 
 ```bash
-hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar grep input output 'dfs[a-z.]+'
+$ hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar grep input output 'dfs[a-z.]+'
 ```
 
 View the ouput on the distributed file system:
 
 ```bash
-hdfs dfs -cat output/*
+$ hdfs dfs -cat output/*
 ```
 
 When done, stop the NameNode and DataNode:
 ```bash
-stop-dfs.sh
+$ stop-dfs.sh
 ```
 
 #### Test YARN
@@ -622,26 +613,26 @@ Configure the following parameters in the configuration files:
 Start ResourceManager and NodeManager:
 
 ```bash
-start-yarn.sh
+$ start-yarn.sh
 ```
 
 Start NameNode and DataNode:
 
 ```bash
-start-dfs.sh
+$ start-dfs.sh
 ```
 
 Test if all daemons are running:
 
 ```bash
-jps
+$ jps
 ```
 
 Stop all daemons:
 
 ```bash
-stop-yarn.sh
-stop-dfs.sh
+$ stop-yarn.sh
+$ stop-dfs.sh
 ```
 
 ### 3. Hadoop Multi-Node Installation
@@ -762,7 +753,7 @@ Update the following configuration files:
 For the Master:
 
 ```bash
-nano /opt/hadoop/etc/hadoop/master
+$ nano /opt/hadoop/etc/hadoop/master
 ```
 
 It should look like this:
@@ -774,7 +765,7 @@ pi01
 For the Workers:
 
 ```bash
-nano /opt/hadoop/etc/hadoop/workers
+$ nano /opt/hadoop/etc/hadoop/workers
 ```
 
 It should look like this:
@@ -789,13 +780,13 @@ pi03
 Use the following command to copy all files from the master node to the worker nodes:
 
 ```bash
-for pi in $(cluster-other-nodes); do rsync -avxP /opt/hadoop $pi:/opt; done
+$ for pi in $(cluster-other-nodes); do rsync -avxP /opt/hadoop $pi:/opt; done
 ```
 
 After everything is copied, you can verify that Hadoop was installed correctly using:
 
 ```bash
-cluster-cmd hadoop version | grep Hadoop
+$ cluster-cmd hadoop version | grep Hadoop
 ```
 
 #### Format the HDFS
@@ -803,7 +794,7 @@ cluster-cmd hadoop version | grep Hadoop
 To run for the first time, the HDFS needs to be formatted:
 
 ```bash
-hdfs namenode -format
+$ hdfs namenode -format
 ```
 
 #### Run HDFS and YARN
@@ -811,19 +802,19 @@ hdfs namenode -format
 To start the HDFS, run the following command on the master node:
 
 ```bash
-start-dfs.sh
+$ start-dfs.sh
 ```
 
 To start Yarn, run the following command:
 
 ```bash
-start-yarn.sh
+$ start-yarn.sh
 ```
 
 Ensure that everything is working by running the following command on all nodes:
 
 ```bash
-jps
+$ jps
 ```
 
 On the master node, `jps` should return:
@@ -834,6 +825,7 @@ NameNode
 SecondaryNameNode
 ResourceManager
 ```
+
 On the worker nodes, `jps` should return:
 
 ```
