@@ -542,13 +542,13 @@ Copy input files into the distributed filesystem:
 
 ```bash
 hdfs dfs -mkdir input
-hdfs dfs -put etc/hadoop/*.xml input
+hdfs dfs -put /opt/hadoop/etc/hadoop/*.xml input
 ```
 
 Run the test example:
 
 ```bash
-hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar grep input output 'dfs[a-z.]+'
+hadoop jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar grep input output 'dfs[a-z.]+'
 ```
 
 View the ouput on the distributed file system:
@@ -566,7 +566,7 @@ stop-dfs.sh
 
 Configure the following parameters in the configuration files:
 
-etc/hadoop/mapred-site.xml:
+/opt/hadoop/etc/hadoop/mapred-site.xml:
 
 ```xml
 <configuration>
@@ -581,7 +581,7 @@ etc/hadoop/mapred-site.xml:
 </configuration>
 ```
 
-etc/hadoop/yarn-site.xml:
+/opt/hadoop/etc/hadoop/yarn-site.xml:
 
 ```xml
 <configuration>
@@ -622,5 +622,143 @@ stop-dfs.sh
 ```
 
 ### 3. Hadoop Multi-Node Installation
+
+#### Edit Site Configuration Files
+
+Update the following configuration files:
+
+/opt/hadoop/etc/hadoop/core-site.xml:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+    <configuration>
+        <property>
+            <name>fs.default.name</name>
+            <value>hdfs://pi01:9000</value>
+        </property>
+    </configuration>
+```
+
+/opt/hadoop/etc/hadoop/hdfs-site.xml:
+
+```xml
+<configuration>
+    <property>
+            <name>dfs.namenode.name.dir</name>
+            <value>/opt/hadoop/data/nameNode</value>
+    </property>
+
+    <property>
+            <name>dfs.datanode.data.dir</name>
+            <value>/opt/hadoop/data/dataNode</value>
+    </property>
+    <property>
+        <name>dfs.namenode.checkpoint.dir</name>
+        <value>/opt/hadoop/hdfs/namenodesecondary</value>
+    </property>
+    <property>
+            <name>dfs.replication</name>
+            <value>1</value>
+    </property>
+</configuration>
+```
+
+/opt/hadoop/etc/hadoop/mapred-site.xml:
+
+```xml
+<configuration>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+    <property>
+        <name>yarn.app.mapreduce.am.env</name>
+        <value>HADOOP_MAPRED_HOME=$HADOOP_HOME</value>
+    </property>
+    <property>
+        <name>mapreduce.map.env</name>
+        <value>HADOOP_MAPRED_HOME=$HADOOP_HOME</value>
+    </property>   
+    <property>
+        <name>mapreduce.reduce.env</name>
+        <value>HADOOP_MAPRED_HOME=$HADOOP_HOME</value>
+    </property>
+    <property>
+        <name>yarn.app.mapreduce.am.resource.memory-mb</name>
+        <value>512</value>
+    </property>
+    <property>
+        <name>mapreduce.map.resource.memory-mb</name>
+        <value>256</value>
+    </property>
+    <property>
+        <name>mapreduce.reduce.resource.memory-mb</name>
+        <value>256</value>
+    </property>
+</configuration>
+```
+
+/opt/hadoop/etc/hadoop/yarn-site.xml:
+
+```xml
+<configuration>
+    <property>
+        <name>yarn.acl.enable</name>
+        <value>0</value>
+    </property>
+    <property>
+        <name>yarn.resourcemanager.hostname</name>
+        <value>pi01</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.resource.memory-mb</name>
+        <value>1536</value>
+    </property>
+    <property>
+        <name>yarn.scheduler.maximum-allocation-mb</name>
+        <value>1536</value>
+    </property>
+    <property>
+        <name>yarn.scheduler.minimum-allocation-mb</name>
+        <value>128</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.vmem-check-enabled</name>
+        <value>false</value>
+    </property>
+</configuration>
+```
+
+#### Set the Master and Workers
+
+For the Master:
+
+```bash
+nano /opt/hadoop/etc/hadoop/master
+```
+
+It should look like this:
+
+```
+pi01
+```
+
+For the Workers:
+
+```bash
+nano /opt/hadoop/etc/hadoop/workers
+```
+
+It should look like this:
+
+```
+pi02
+pi03
+```
 
 ## Spark Installation
