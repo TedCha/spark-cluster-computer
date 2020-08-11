@@ -18,9 +18,11 @@ Tasks
 
 My setup would not have been possible without knowledge from the following articles:
 
-- https://towardsdatascience.com/assembling-a-personal-data-science-big-data-laboratory-in-a-raspberry-pi-4-or-vms-cluster-e4c5a0473025
-- https://medium.com/analytics-vidhya/build-raspberry-pi-hadoop-spark-cluster-from-scratch-c2fa056138e0
-- https://www.linode.com/docs/databases/hadoop/how-to-install-and-set-up-hadoop-cluster/
+- [A Data Science/Big Data Laboratory by Pier Taranti](https://towardsdatascience.com/assembling-a-personal-data-science-big-data-laboratory-in-a-raspberry-pi-4-or-vms-cluster-e4c5a0473025)
+- [Build Raspberry Pi Hadoop/Spark Cluster from Scratch by Henry Liang](https://medium.com/analytics-vidhya/build-raspberry-pi-hadoop-spark-cluster-from-scratch-c2fa056138e0)
+- [How to Install and Set Up a 3-Node Hadoop Cluster by Linode (Contributitons from Florent Houbart)](https://www.linode.com/docs/databases/hadoop/how-to-install-and-set-up-hadoop-cluster/)
+- [Apache Hadoop Documentation](https://hadoop.apache.org/docs/stable/index.html)
+- [Apache Spark Documentation](https://spark.apache.org/docs/latest/)
 
 Without further ado, let's get on to it!
 
