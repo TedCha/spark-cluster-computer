@@ -516,4 +516,111 @@ After editing:
     </property>
 </configuration>
 ```
+
+#### Test MapReduce
+
+Format the NameNode (THIS WILL DELETE ALL DATA IN THE HDFS!):
+
+```bash
+hdfs namenode -format
+```
+
+Start the NameNode and DataNode:
+
+```bash
+start-dfs.sh
+```
+
+Make the required directories to run MapReduce jobs:
+
+```bash
+hdfs dfs -mkdir /user
+hdfs dfs -mkdir /user/{username}
+```
+
+Copy input files into the distributed filesystem:
+
+```bash
+hdfs dfs -mkdir input
+hdfs dfs -put etc/hadoop/*.xml input
+```
+
+Run the test example:
+
+```bash
+hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar grep input output 'dfs[a-z.]+'
+```
+
+View the ouput on the distributed file system:
+
+```bash
+hdfs dfs -cat output/*
+```
+
+When done, stop the NameNode and DataNode:
+```bash
+stop-dfs.sh
+```
+
+#### Test YARN
+
+Configure the following parameters in the configuration files:
+
+etc/hadoop/mapred-site.xml:
+
+```xml
+<configuration>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+    <property>
+        <name>mapreduce.application.classpath</name>
+        <value>$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*:$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*</value>
+    </property>
+</configuration>
+```
+
+etc/hadoop/yarn-site.xml:
+
+```xml
+<configuration>
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.env-whitelist</name>
+        <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+    </property>
+</configuration>
+```
+
+Start ResourceManager and NodeManager:
+
+```bash
+start-yarn.sh
+```
+
+Start NameNode and DataNode:
+
+```bash
+start-dfs.sh
+```
+
+Test if all daemons are running:
+
+```bash
+jps
+```
+
+Stop all daemons:
+
+```bash
+stop-yarn.sh
+stop-dfs.sh
+```
+
+### 3. Hadoop Multi-Node Installation
+
 ## Spark Installation
