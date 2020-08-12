@@ -10,8 +10,8 @@ Tasks
 - [X] Individual Pi Setup (Ubuntu Server LTS 20.04 Installation)
 - [X] Cluster Setup (Public Key SSH Authentication, Static IP, Host/Hostnames Configuration)
 - [X] Hadoop Installation (Single Node and Multi-Node; Hadoop 3.2.1)
-- [ ] Spark Installation
-- [ ] Spark Data Processing Section
+- [X] Spark Installation
+- [ ] Data Processing in Spark
 - [ ] Revise/Edit
 
 ### Sources
@@ -21,6 +21,7 @@ My setup would not have been possible without knowledge from the following artic
 - [A Data Science/Big Data Laboratory by Pier Taranti](https://towardsdatascience.com/assembling-a-personal-data-science-big-data-laboratory-in-a-raspberry-pi-4-or-vms-cluster-e4c5a0473025)
 - [Build Raspberry Pi Hadoop/Spark Cluster from Scratch by Henry Liang](https://medium.com/analytics-vidhya/build-raspberry-pi-hadoop-spark-cluster-from-scratch-c2fa056138e0)
 - [How to Install and Set Up a 3-Node Hadoop Cluster by Linode (Contributitons from Florent Houbart)](https://www.linode.com/docs/databases/hadoop/how-to-install-and-set-up-hadoop-cluster/)
+- [Install, Configure, and Run Spark on Top of a Hadoop YARN Cluster](https://www.linode.com/docs/databases/hadoop/install-configure-run-spark-on-top-of-hadoop-yarn-cluster/)
 - [Apache Hadoop Documentation](https://hadoop.apache.org/docs/stable/index.html)
 - [Apache Spark Documentation](https://spark.apache.org/docs/latest/)
 
@@ -837,3 +838,94 @@ NodeManager
 Congragulations! You now have a working YARN cluster!
 
 ## Spark Installation
+
+### 1. Download Apache Spark
+First, download the Spark 3.0.0 (pre-built for Hadoop 3.2 and later) binary onto your machine. You can get the binary from the [Apache Spark website](https://spark.apache.org/downloads.html) and use wget to download it on to the Pi.
+
+```bash
+$ wget https://downloads.apache.org/spark/spark-3.0.0/spark-3.0.0-bin-hadoop3.2.tgz
+```
+
+Next, extract the tar and move the binary to the /opt directory using the following command:
+
+```bash
+$ sudo tar -xvf spark-3.0.0-bin-hadoop3.2.tgz -C /opt/
+```
+
+Then, cd into /opt/.
+
+```bash
+$ cd /opt
+```
+
+Change the name of the directory in /opt to spark:
+
+```bash
+$ sudo mv spark-3.0.0-bin-hadoop3.2 spark
+```
+
+Change the permissions on the directory.
+
+```bash
+$ sudo chown ubuntu:ubutnu -R /opt/spark
+```
+
+### 2. Configure YARN for Spark Integration
+
+Add the Spark directory to the PATH:
+
+```bash
+nano /opt/hadoop/.profile
+```
+
+Add the following line:
+
+```
+PATH=/opt/spark/bin:$PATH
+```
+
+Now, edit the Hadoop profile again:
+
+```bash
+nano /opt/hadoop/.profile
+```
+
+Add the following code:
+
+```
+export HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+export SPARK_HOME=/opt/spark
+export LD_LIBRARY_PATH=/opt/hadoop/lib/native:$LD_LIBRARY_PATH
+```
+
+Reboot the Pi
+
+```bash
+sudo reboot
+
+```
+Rename the spark default template config file:
+
+```bash
+mv /opt/spark/conf/spark-defaults.conf.template /opt/spark/conf/spark-defaults.conf
+
+```
+
+Edit $SPARK_HOME/conf/spark-defaults.conf and set spark.master to yarn:
+
+```bash
+nano SPARK_HOME/conf/spark-defaults.conf
+```
+
+Set the following configurations:
+```
+spark.master yarn
+
+spark.driver.memory 512m
+
+spark.yarn.am.memory 512m
+
+spark.executor.memory 512m
+```
+
+Congragulations, you now have a working Spark Cluster Computer!
