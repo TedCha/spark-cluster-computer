@@ -928,4 +928,4 @@ spark.yarn.am.memory 512m
 spark.executor.memory 512m
 ```
 
-Congragulations, you now have a working Spark Cluster Computer!
+Congratulations, you now have a working Spark Cluster Computer!
