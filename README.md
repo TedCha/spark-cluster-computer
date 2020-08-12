@@ -11,6 +11,7 @@ Tasks
 - [X] Cluster Setup (Public Key SSH Authentication, Static IP, Host/Hostnames Configuration)
 - [X] Hadoop Installation (Single Node and Multi-Node; Hadoop 3.2.1)
 - [X] Spark Installation
+- [ ] Spark Installation Files
 - [ ] Data Processing in Spark
 - [ ] Revise/Edit
 
