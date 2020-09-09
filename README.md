@@ -123,9 +123,9 @@ If you get a cache lock error after the update command, reboot the Pi try again.
 
 In this stage, we'll setup static IPs, hosts/hostname, public-key SSH authentication, and ease-of-use functions.
 
-**The following steps will need to be done on each Pi.**
-
 ### 1. Static IP Setup
+
+**The following steps will need to be done on each Pi.**
 
 Ubuntu Server LTS 20.04 requires Netplan for network configuration. Specifically, editing a few yaml files.
 
@@ -150,9 +150,11 @@ The returned information should look like so:
 ...
 </pre>
 
-The network interface name is the bolded `eth0` tag (It will not be bolded on your system, but this is the location you should look). We'll need this later.
+The network interface name is the bolded `eth0` tag (It will not be bolded on your system, but this is the location you should look). 
+Keep this in mind, we'll need this for the network configuration file.
 
-Next, you'll need to use nano or vim to edit the configuration files. In this tutorial, I'll be using nano. Use the following commands to edit the configuration file to disable automatic network configuration.
+Next, you'll need to use nano or vim to edit the configuration files. In this tutorial, I'll be using nano. 
+Use the following commands to edit the configuration file to disable automatic network configuration.
 
 ```bash
 $ sudo nano /etc/cloud/cloud.cfg.d/99-disable-config.cfg
@@ -204,13 +206,17 @@ After editing the file, apply the settings by using the following commands:
 ```bash
 $ sudo netplan apply
 ```
-`sudo netplan apply` will make your SSH session hang because the ip address changes. Kill the terminal session and SSH into the Pi with the new ip address.
+`sudo netplan apply` will make your SSH session hang because the ip address changes. 
+Kill the terminal session and SSH into the Pi using the new ip address.
 
 Then reboot the Pi and confirm the static IP address is set correctly.
 
 ### 2. Hosts/Hostname Configuration
 
-On each Pi, you'll have to edit the hosts and hostnames files to the specific Pi information. First we'll update the hostname file using the following command:
+**The following steps will need to be done on each Pi.**
+
+Now it's time to edit the hosts and hostnames files to the specific Pi information. 
+First we'll update the hostname file using the following command:
 
 ```bash
 $ sudo nano /etc/hostname
@@ -250,13 +256,15 @@ ff02::3 ip6-allhosts
 10.1.2.123 pi03
 ```
 
-While editing the hosts file, make sure to delete the localhost 127.0.0.1 instance from the file. The template for adding additional nodes to the hosts file is:
+While editing the hosts file, make sure to delete the localhost 127.0.0.1 line from the file. 
+The template for adding additional nodes to the hosts file is:
 
 ```
 {IP Address} {hostname}
 ```
 
-Now reboot the Pi and repeat the steps on the rest of the nodes. Note, the hostname file will be different for each node, but the hosts file should be exactly the same.
+Now reboot the Pi and move on to the next Pi until all are configured. 
+Note, the hostname file will be different for each node, but the hosts file should be exactly the same.
 
 ### 3. Public Key SSH Authentication Configuration
 
