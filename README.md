@@ -71,17 +71,25 @@ Use the [Raspberry Pi Imager](https://ubuntu.com/tutorials/how-to-install-ubuntu
 
 ### 2. Pi Configuration
 
-SSH into each Pi individually and setup some basic configuration. Use this net-tools command to find the IP address of each Pi.
+In this stage, we'll SSH into each Pi and setup some basic configuration. 
+
+**Repeat the following steps for each Pi.**
+
+Plug in one Pi at a time; finish the setup configuration completely before moving on to the next Pi.
+
+Use this net-tools command to find the IP address of the Pi.
 
 ```bash
 $ arp -na | grep -i "dc:a6:32"
 ```
 
-If that doesn't work, you can also use your router admin interface to see a list of connected devices.
+If that doesn't return anything, you can also use your router admin interface to see a list of connected devices. 
 
-After you're connected you'll be prompted to change the password. Change it to the same password on each Pi; something secure but easy to remember. 
+The name of the device should be `ubuntu`
 
-Ensure that each Pi has their time synchronized using the following command:
+After you're connected you'll be prompted to change the password. Make the password the same on each Pi; something secure but easy to remember. 
+
+Ensure that the Pi has the time synchronized using the following command:
 
 ```bash
 $ timedatectl status
@@ -99,30 +107,36 @@ System clock synchronized: yes
           RTC in local TZ: no          
 ```
 
-If the system clock is synchronized and NTP service is active on each Pi, you're good to go. 
+If the system clock is synchronized and NTP service is active, you're good to go. 
 
-Lastly, run the following commands on each Pi to finish individual configuration:
+Lastly, run the following commands to finish individual configuration:
 
 ```bash
 $ sudo apt update
 $ sudo apt upgrade
 $ sudo reboot
 ```
+
+If you get a cache lock error after the update command, reboot the Pi try again.
+
 ## Cluster Setup
 
-The following steps will need to be done on each Pi.
+In this stage, we'll setup static IPs, hosts/hostname, public-key SSH authentication, and ease-of-use functions.
+
+**The following steps will need to be done on each Pi.**
 
 ### 1. Static IP Setup
 
 Ubuntu Server LTS 20.04 requires Netplan for network configuration. Specifically, editing a few yaml files.
 
-First, find the name of your network interface name by running:
+First, SSH into the Pi and find the name of your network interface by running:
 
 ```bash
 $ ip a
 ```
 
 The returned information should look like so:
+
 <pre>
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -136,7 +150,7 @@ The returned information should look like so:
 ...
 </pre>
 
-The network interface name is the bolded `eth0` tag. We'll need this later.
+The network interface name is the bolded `eth0` tag (It will not be bolded on your system, but this is the location you should look). We'll need this later.
 
 Next, you'll need to use nano or vim to edit the configuration files. In this tutorial, I'll be using nano. Use the following commands to edit the configuration file to disable automatic network configuration.
 
@@ -156,22 +170,8 @@ Then, you'll setup the static IP by editing the 50-cloud-init.yaml file. Use the
 $ sudo nano /etc/netplan/50-cloud-init.yaml
 ```
 
-My configuration file looked like so:
-(X being the last digit of the specific IP address for each Pi; 10.1.2.121, 10.1.2.122, 10.1.2.123, etc.)
+The basic template to set a static IP is:
 
-```yaml
-network:
-    ethernets:
-        eth0:
-            dhcp4: false
-            addresses: [10.1.2.12X/24]
-            gateway4: 10.1.2.1
-            nameservers:
-                addresses: [10.1.2.1, 8.8.8.8]
-    version: 2
-```
-
-The basic template is:
 ```yaml
 network:
     ethernets:
@@ -184,12 +184,27 @@ network:
     version: 2
 ```
 
-After edit the file, apply the settings by using the following commands:
+My configuration file looked like so:
+(X being the last digit of the specific IP address for each Pi; 10.1.2.121, 10.1.2.122, 10.1.2.123, etc.)
+
+```yaml
+network:
+    ethernets:
+        eth0:
+            dhcp4: false
+            addresses: [10.1.2.X/24]
+            gateway4: 10.1.2.1
+            nameservers:
+                addresses: [10.1.2.1, 8.8.8.8]
+    version: 2
+```
+
+After editing the file, apply the settings by using the following commands:
 
 ```bash
-$ sudo netplan try
 $ sudo netplan apply
 ```
+`sudo netplan apply` will make your SSH session hang because the ip address changes. Kill the terminal session and SSH into the Pi with the new ip address.
 
 Then reboot the Pi and confirm the static IP address is set correctly.
 
