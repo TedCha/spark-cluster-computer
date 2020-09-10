@@ -215,8 +215,9 @@ Then reboot the Pi and confirm the static IP address is set correctly.
 
 **The following steps will need to be done on each Pi.**
 
-Now it's time to edit the hosts and hostnames files to the specific Pi information. 
-First we'll update the hostname file using the following command:
+Now it's time to configure the hosts and hostnames files to the specific Pi information.
+
+First we'll SSH into the Pi and update the hostname file using the following command:
 
 ```bash
 $ sudo nano /etc/hostname
@@ -256,17 +257,21 @@ ff02::3 ip6-allhosts
 10.1.2.123 pi03
 ```
 
-While editing the hosts file, make sure to delete the localhost 127.0.0.1 line from the file. 
+While editing the hosts file, make sure to delete the localhost 127.0.0.1 line from the file.
+
 The template for adding additional nodes to the hosts file is:
 
 ```
 {IP Address} {hostname}
 ```
 
-Now reboot the Pi and move on to the next Pi until all are configured. 
 Note, the hostname file will be different for each node, but the hosts file should be exactly the same.
 
+Now reboot the Pi and move on to the next Pi until all are configured. 
+
 ### 3. Public Key SSH Authentication Configuration
+
+**Perform these steps on the master Pi until only until directed to do otherwise.**
 
 First, edit the ssh config file on the Pi using the following command:
 
@@ -274,7 +279,17 @@ First, edit the ssh config file on the Pi using the following command:
 $ nano ~/.ssh/config
 ```
 
-Your config file should look like so: 
+Add all of the nodes to the config file, including the Host, User, and Hostname for each Pi.
+
+The template for adding nodes to the config file is:
+
+```
+Host piXX
+User ubuntu
+Hostname {IP Address}
+```
+
+My config file looked like this after adding all of my nodes to the file: 
 
 ```
 Host pi01
@@ -290,21 +305,15 @@ User ubuntu
 Hostname 10.1.2.123
 ```
 
-The template for adding more nodes to the config file is:
-
-```
-Host pi0X
-User ubuntu
-Hostname {IP Address}
-```
-
 Next, create an SSH key pair on the Pi using:
 
 ```bash
 $ ssh-keygen -t rsa -b 4096
 ```
 
-You'll be prompted a few times. Press enter through them rather than change anything because the key pair needs to exist in the .ssh directory and the key pair should be passwordless.
+You'll be prompted to select a directory to save and for a passphrase.
+
+Press enter through the prompts because the key pair needs to be saved in the .ssh directory and the key pair should be passwordless.
 
 The output should look similar to this:
 
@@ -327,51 +336,29 @@ The key's randomart image is:
 +----[SHA256]-----+
 ```
 
-Now, repeat the SSH keygen on Pi 2 and 3. 
+Repeat the SSH keygen on Pi 2 and 3.
 
-Then use the following command to copy the public keys from Pi 2 and 3 to Pi 1.
-
-```bash
-$ ssh-copy-id pi01@10.1.2.121
-```
-
-If your IP address/hostname is different than mine, the template is:
+Then use the following command on all Pis to copy the public keys into Pi 1's authorized key list:
 
 ```bash
-$ ssh-copy-id {hostname}@{IP Address}
+$ ssh-copy-id piXX
 ```
 
-Then SSH back into Pi 1 and use the following command to copy Pi 1's public key into it's authorized keys:
-
-```bash
-$ ssh-copy-id pi01
-```
+XX stands for the specific digit identifier for the Pi (pi01, pi02, pi03)
 
 Finally, you can copy Pi 1's configuration files to the rest of the Pi's using the following commands:
 
 ```bash
-$ scp ~/.ssh/authorized_keys pi0X:~/.ssh/authorized_keys
+$ scp ~/.ssh/authorized_keys piXX:~/.ssh/authorized_keys
 ```
 
 ```bash
-$ scp ~/.ssh/config pi0X:~/.ssh/config
-```
-
-The last step is disable Password Authentication in the ssh config files using the following command:
-
-```bash
-$ sudo nano /etc/ssh/sshd_config
-```
-
-In the file, you'll find an configuration called `PasswordAuthentication`. If it's commented out, uncomment it and set the value to no. It should look like this:
-
-```
-...
-PasswordAuthentication no
-...
+$ scp ~/.ssh/config piXX:~/.ssh/config
 ```
 
 Now you should be able to ssh into any Pi from any of the Pis without providing a password.
+
+Make sure to test it out from all Pis to ensure everything is working properly.
 
 
 ### 4. Cluster Ease of Use Functions
