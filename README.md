@@ -886,7 +886,7 @@ To start the HDFS, run the following command on the master node:
 $ start-dfs.sh
 ```
 
-To start Yarn, run the following command:
+To start YARN, run the following command:
 
 ```bash
 $ start-yarn.sh
@@ -913,6 +913,83 @@ On the worker nodes, `jps` should return a similar output:
 3889 Jps
 3684 NodeManager
 3514 DataNode
+```
+
+### Get/Put data to the HDFS
+
+First create the user home directory in the HDFS:
+
+```bash
+$ hdfs dfs -mkdir -p /user/ubuntu
+```
+
+Create a directory called `books` in the HDFS:
+
+```bash
+$ hdfs dfs -mkdir books
+```
+
+Grab a few books from the Gutenberg Project:
+
+```bash
+$ cd ~
+$ wget -O alice.txt https://www.gutenberg.org/files/11/11-0.txt
+$ wget -O holmes.txt https://www.gutenberg.org/files/1661/1661-0.txt
+$ wget -O frankenstein.txt https://www.gutenberg.org/files/84/84-0.txt
+```
+
+Put the books on the HDFS in the `books` directory:
+
+```bash
+$ hdfs dfs -put alice.txt holmes.txt frankenstein.txt books
+```
+
+List the contents of the `books` directory:
+
+```bash
+hdfs dfs -ls books
+```
+
+Move one of the books back into the local filesystem:
+
+```bash
+hdfs dfs -get books/holmes.txt
+```
+
+List the current directory to ensure that you successfully retrieved the file:
+
+```bash
+ls
+```
+
+### MapReduce WordCount via YARN
+
+Let's test that everything is working through the "Hello, world!" to MapReduce; the WordCount.
+
+First, submit a job with the sample WordCount `jar` to YARN:
+
+```bash
+yarn jar /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar wordcount "books/*" output
+```
+
+After the job is finished (it could take a few minutes), get the results with the following command:
+
+```bash
+hdfs dfs -ls output
+```
+
+You should be returned the following information:
+
+```
+Found 2 items
+-rw-r--r--   1 ubuntu supergroup          0 2020-09-10 18:09 output/_SUCCESS
+-rw-r--r--   1 ubuntu supergroup     272490 2020-09-10 18:09 output/part-r-00000
+```
+
+Then, print the result with the following command (use `Ctrl-Z` to exit):
+
+```bash
+hdfs dfs -cat output/part-r-00000 | less
 ```
 
 Congragulations, you now have a working YARN cluster!
