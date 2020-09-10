@@ -477,6 +477,8 @@ Next, download the Hadoop 3.2.1 binary onto your machine. You can get the binary
 $ wget https://downloads.apache.org/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz
 ```
 
+*Note, the link in the bash command might not work if Hadoop has been updated.*
+
 Next, extract the tar and move the binary to the /opt directory using the following command:
 
 ```bash
@@ -997,84 +999,84 @@ Congragulations, you now have a working YARN cluster!
 ## Spark Installation
 
 ### 1. Download Apache Spark
-First, download the Spark 3.0.0 (pre-built for Hadoop 3.2 and later) binary onto your machine. You can get the binary from the [Apache Spark website](https://spark.apache.org/downloads.html) and use wget to download it on to the Pi.
+
+**The following steps only need to be performed on the master Pi.**
+
+First, download the Spark 3.0.1 (pre-built for Hadoop 3.2 and later) binary onto the master Pi. You can get the binary from the [Apache Spark website](https://spark.apache.org/downloads.html) and use wget to download it.
 
 ```bash
-$ wget https://downloads.apache.org/spark/spark-3.0.0/spark-3.0.0-bin-hadoop3.2.tgz
+$ wget https://downloads.apache.org/spark/spark-3.0.1/spark-3.0.1-bin-hadoop3.2.tgz
 ```
 
-Next, extract the tar and move the binary to the /opt directory using the following command:
+*Note, the link in the bash command might not work if Spark has been updated.*
+
+Next, extract the tar and move the binary to the `/opt/hadoop/` directory using the following command:
 
 ```bash
-$ sudo tar -xvf spark-3.0.0-bin-hadoop3.2.tgz -C /opt/
+$ sudo tar -xvf spark-3.0.1-bin-hadoop3.2.tgz -C /opt/hadoop && cd /opt/hadoop
 ```
 
-Then, cd into /opt/.
+Change the name of the directory in `/opt/hadoop/` to spark:
 
 ```bash
-$ cd /opt
-```
-
-Change the name of the directory in /opt to spark:
-
-```bash
-$ sudo mv spark-3.0.0-bin-hadoop3.2 spark
+$ sudo mv spark-3.0.1-bin-hadoop3.2 spark
 ```
 
 Change the permissions on the directory.
 
 ```bash
-$ sudo chown ubuntu:ubutnu -R /opt/spark
+$ sudo chown ubuntu:ubuntu -R /opt/hadoop/spark
 ```
 
 ### 2. Configure YARN for Spark Integration
 
-Add the Spark directory to the PATH:
-
-```bash
-nano /opt/hadoop/.profile
-```
-
-Add the following line:
+Add the following code to the end of the `.bashrc` file:
 
 ```
-PATH=/opt/spark/bin:$PATH
-```
-
-Now, edit the Hadoop profile again:
-
-```bash
-nano /opt/hadoop/.profile
-```
-
-Add the following code:
-
-```
-export HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
-export SPARK_HOME=/opt/spark
+# path and options for Spark
+export SPARK_HOME=/opt/hadoop/spark
+export PATH=$PATH:$SPARK_HOME/bin
 export LD_LIBRARY_PATH=/opt/hadoop/lib/native:$LD_LIBRARY_PATH
 ```
 
-Reboot the Pi
+Source the `.bashrc` file:
 
 ```bash
-sudo reboot
+source ~/.bashrc
+```
+
+Add the Spark directory to the PATH by editing the Hadoop user profile:
+
+```bash
+$ nano /opt/hadoop/.profile
+```
+
+Add the following lines:
 
 ```
+PATH=/opt/hadoop/spark/bin:$PATH
+export HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+export SPARK_HOME=/opt/hadoop/spark
+export LD_LIBRARY_PATH=/opt/hadoop/lib/native:$LD_LIBRARY_PATH
+```
+
+Exit the terminal session and SSH back again to restart the session.
+
 Rename the spark default template config file:
 
 ```bash
-mv /opt/spark/conf/spark-defaults.conf.template /opt/spark/conf/spark-defaults.conf
+mv /opt/hadoop/spark/conf/spark-defaults.conf.template /opt/hadoop/spark/conf/spark-defaults.conf
 
 ```
 
 Edit $SPARK_HOME/conf/spark-defaults.conf and set spark.master to yarn:
 
 ```bash
-nano SPARK_HOME/conf/spark-defaults.conf
+sudo nano /opt/hadoop/spark/conf/spark-defaults.conf
 ```
 
 Set the following configurations:
+
 ```
 spark.master yarn
 
@@ -1083,6 +1085,92 @@ spark.driver.memory 512m
 spark.yarn.am.memory 512m
 
 spark.executor.memory 512m
+```
+
+### Submit a Spark Application to the YARN Cluster
+
+Run the following command using the `spark-submit` command to test the parallel processing calculation of *Pi*:
+
+```bash
+spark-submit --deploy-mode client --class org.apache.spark.examples.SparkPi /opt/hadoop/spark/examples/jars/spark-examples_2.12-3.0.1.jar 10
+```
+
+You should see the following line in the output after submiting the job:
+
+```
+...
+Pi is roughly 3.1401351401351403
+...
+```
+
+### Monitor you Spark Applications
+
+Enable the Web UI of Spark to track your submitted jobs by editing `spark-defaults.conf` file:
+
+```bash
+sudo nano /opt/hadoop/spark/conf/spark-defaults.conf
+```
+
+Add the following lines to the configuration file:
+
+```
+spark.eventLog.enabled            true
+spark.eventLog.dir                hdfs://pi01:9000/spark-logs
+spark.history.provider            org.apache.spark.deploy.history.FsHistoryProvider
+spark.history.fs.logDirectory     hdfs://pi01:9000/spark-logs
+spark.history.fs.update.interval  10s
+spark.history.ui.port             18080
+```
+
+Create the log directory in the HDFS:
+
+```bash
+hdfs dfs -mkdir /spark-logs
+```
+
+Run the history server:
+
+```bash
+/opt/hadoop/spark/sbin/start-history-server.sh
+```
+
+Run the Pi parallel processing job again to generate logs in the HDFS.
+
+```bash
+spark-submit --deploy-mode client --class org.apache.spark.examples.SparkPi /opt/hadoop/spark/examples/jars/spark-examples_2.12-3.0.1.jar 10
+```
+
+Access the Spark History Server throught the Web UI at http://{Master Node IP}:18080 in a web browser.
+
+### Using the Spark Shell
+
+Let's take a look at some the existing data on our cluster in an interactive manner; via the Spark Shell:
+
+To start the Spark Shell:
+
+```bash
+spark-shell
+```
+
+Then let's do a small Scala example to show the power of the Spark Shell.
+
+First, let's create a string variable named input from the `alice.txt` file.
+
+```scala
+var input = spark.read.textFile("books/alice.txt")
+```
+
+Then, let's count the number of non-blank lines using the filter function:
+
+
+```scala
+input.filter(line => line.length()>0).count()
+```
+
+The returned output should be so:
+
+```
+res0: Long = 2813
 ```
 
 Congratulations, you now have a working Spark Cluster Computer!
