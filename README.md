@@ -4,19 +4,19 @@ Project that details the creation of a Spark Cluster using Raspberry Pi 4 and Ub
 ## Introduction
 This project is was last updated 9/10/20!
 
-Tasks
+This project is my own documentation of building a Spark Cluster Computer. I explain from start to finish how to setup a physical Raspberry Pi 4 Cluster Computer and install Apache Hadoop and Apache Spark on the cluster.
 
-- [X] Physical Cluster Setup (Power Supply and Network Architecture)
-- [X] Individual Pi Setup (Ubuntu Server LTS 20.04 Installation)
-- [X] Cluster Setup (Public Key SSH Authentication, Static IP, Host/Hostnames Configuration)
-- [X] Hadoop Installation (Single Node and Multi-Node; Hadoop 3.2.1)
-- [X] Spark Installation
-- [X] Commit Spark Installation Files to Repository
-- [X] Revise/Edit
+In this tutorial, we cover:
+
+* Physical Cluster Setup
+* Individual Pi Setup - Ubuntu Server LTS 20.04 Installation
+* Cluster Setup - Public Key SSH Authentication, Static IP, Host/Hostnames Configuration
+* Hadoop Installation - Single Node and Multi-Node; Hadoop 3.2.1
+* Spark Installation - Spark Jobs via YARN and the Spark Shell; Spark 3.0.1
 
 ### Sources
 
-My setup would not have been possible without knowledge from the following articles:
+This tutorial would not have been possible without knowledge from the following articles:
 
 - [A Data Science/Big Data Laboratory by Pier Taranti](https://towardsdatascience.com/assembling-a-personal-data-science-big-data-laboratory-in-a-raspberry-pi-4-or-vms-cluster-e4c5a0473025)
 - [Build Raspberry Pi Hadoop/Spark Cluster from Scratch by Henry Liang](https://medium.com/analytics-vidhya/build-raspberry-pi-hadoop-spark-cluster-from-scratch-c2fa056138e0)
