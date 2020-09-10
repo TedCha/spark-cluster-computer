@@ -2,7 +2,7 @@
 Project that details the creation of a Spark Cluster using Raspberry Pi 4 and Ubuntu Server LTS 20.04
 
 ## Introduction
-This is currently a WIP. 
+This project is was last updated 9/10/20!
 
 Tasks
 
@@ -11,9 +11,8 @@ Tasks
 - [X] Cluster Setup (Public Key SSH Authentication, Static IP, Host/Hostnames Configuration)
 - [X] Hadoop Installation (Single Node and Multi-Node; Hadoop 3.2.1)
 - [X] Spark Installation
-- [ ] Commit Spark Installation Files to Repository
-- [ ] Data Processing in Spark
-- [ ] Revise/Edit
+- [X] Commit Spark Installation Files to Repository
+- [X] Revise/Edit
 
 ### Sources
 
