@@ -265,7 +265,7 @@ The template for adding additional nodes to the hosts file is:
 {IP Address} {hostname}
 ```
 
-Note, the hostname file will be different for each node, but the hosts file should be exactly the same.
+*Note, the hostname file will be different for each node, but the hosts file should be exactly the same.*
 
 Now reboot the Pi and move on to the next Pi until all are configured. 
 
@@ -338,13 +338,11 @@ The key's randomart image is:
 
 Repeat the SSH keygen on Pi 2 and 3.
 
-Then use the following command on all Pis to copy the public keys into Pi 1's authorized key list:
+Then use the following command on all Pis **(including Pi 1)** to copy the public keys into Pi 1's authorized key list:
 
 ```bash
-$ ssh-copy-id piXX
+$ ssh-copy-id pi01
 ```
-
-XX stands for the specific digit identifier for the Pi (pi01, pi02, pi03)
 
 Finally, you can copy Pi 1's configuration files to the rest of the Pi's using the following commands:
 
@@ -355,6 +353,8 @@ $ scp ~/.ssh/authorized_keys piXX:~/.ssh/authorized_keys
 ```bash
 $ scp ~/.ssh/config piXX:~/.ssh/config
 ```
+
+*Note, XX stands for the specific digit identifier for the Pi (pi02, pi03).*
 
 Now you should be able to ssh into any Pi from any of the Pis without providing a password.
 
@@ -421,6 +421,12 @@ function cluster-stop-hadoop {
 }
 ```
 
+Source the `.bashrc` file on the master Pi:
+
+```bash
+source ~/.bashrc
+```
+
 Now use the following command to copy the .bashrc to all the worker nodes:
 
 ```bash
@@ -432,7 +438,10 @@ Lastly, run the following command to source the .bashrc file on all nodes:
 ```bash
 cluster-cmd source ~/.bashrc
 ```
-You now have a functioning cluster computer. In order to start running parallel processing tasks, we'll have to install Hadoop and then Spark.
+
+You now have a functioning cluster computer. 
+
+In order to start running parallel processing tasks, we'll install Hadoop first and then Spark.
 
 ## Hadoop 3.2.1 Installation
 
@@ -444,9 +453,24 @@ To install Java 8 on each node, use the following command:
 $ cluster-cmd sudo apt install openjdk-8-jdk
 ```
 
+Then, because we haven't done it in a while, use the following command to reboot the Pis:
+
+```bash
+$ cluster-reboot
+```
+
+After everything is rebooted, SSH into the master Pi and run the following command to verify Java was installed correctly:
+
+```bash
+$ cluster-cmd java -version
+```
+
 ### 2. Hadoop Single Node Installation
 
 #### Download Hadoop
+
+**Perform the following steps only on the master Pi until directed to do otherwise.**
+
 Next, download the Hadoop 3.2.1 binary onto your machine. You can get the binary from the [Apache Hadoop website](https://hadoop.apache.org/releases.html) and use wget to download it on to the Pi.
 
 ```bash
@@ -456,15 +480,10 @@ $ wget https://downloads.apache.org/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.
 Next, extract the tar and move the binary to the /opt directory using the following command:
 
 ```bash
-$ sudo tar -xvf hadoop-3.2.1.tar.gz -C /opt/
-```
-Then, cd into /opt/.
-
-```bash
-$ cd /opt
+$ sudo tar -xvf hadoop-3.2.1.tar.gz -C /opt/ && cd /opt
 ```
 
-Change the name of the directory in /opt from hadoop-3.2.1 to hadoop:
+Change the name of the directory from hadoop-3.2.1 to hadoop:
 
 ```bash
 $ sudo mv hadoop-3.2.1 hadoop
@@ -473,9 +492,21 @@ $ sudo mv hadoop-3.2.1 hadoop
 Change the permissions on the directory.
 
 ```bash
-$ sudo chown ubuntu:ubutnu -R /opt/hadoop
+$ sudo chown ubuntu:ubuntu -R /opt/hadoop
 ```
-#### Setup .bashrc and hadoop-env.sh Environment Variables
+
+#### Setup .profile, .bashrc, and hadoop-env.sh Environment Variables
+
+Edit `.profile` to add Hadoop binaries to PATH:
+
+```bash
+$ nano /opt/hadoop/.profile
+```
+
+Add the following line:
+```
+PATH=/opt/hadoop/hadoop/bin:/opt/hadoop/hadoop/sbin:$PATH
+```
 
 Edit the `.bashrc` file to include the following environmental variables at the bottom of the file.
 
@@ -498,7 +529,17 @@ export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
 export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
 ```
 
-Next, set the value of `JAVA_HOME` in /opt/hadoop/etc/hadoop/hadoop-env.sh. You'll have to scroll down to find the correct line. It should look like this:
+Then source the `.bashrc` file to ensure it updates.
+
+```bash
+source ~/.bashrc
+```
+
+Next, set the value of `JAVA_HOME` in /opt/hadoop/etc/hadoop/hadoop-env.sh. You'll have to scroll down to find the correct line.
+
+The line will be commented out. Uncomment the line and add the correct path to the variable.
+
+It should look like this:
 
 ```bash
 ...
@@ -513,7 +554,7 @@ export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-arm64
 Use the following command to edit the core-site.xml file.
 
 ```bash
-$ sudo nano /opt/hadoop/etc/hadoop/core-site.xml
+$ nano /opt/hadoop/etc/hadoop/core-site.xml
 ```
 
 It should look like so after editing:
@@ -529,7 +570,7 @@ It should look like so after editing:
 
 Then edit the hdfs-site.xml file:
 ```bash
-$ sudo nano /opt/hadoop/etc/hadoop/hdfs-site.xml
+$ nano /opt/hadoop/etc/hadoop/hdfs-site.xml
 ```
 
 After editing:
@@ -545,7 +586,7 @@ After editing:
 
 #### Test MapReduce
 
-Format the NameNode (THIS WILL DELETE ALL DATA IN THE HDFS!):
+Format the NameNode **THIS WILL DELETE ALL DATA IN THE HDFS!**:
 
 ```bash
 $ hdfs namenode -format
@@ -561,7 +602,7 @@ Make the required directories to run MapReduce jobs:
 
 ```bash
 $ hdfs dfs -mkdir /user
-$ hdfs dfs -mkdir /user/{username}
+$ hdfs dfs -mkdir /user/ubuntu
 ```
 
 Copy input files into the distributed filesystem:
@@ -640,6 +681,19 @@ Test if all daemons are running:
 $ jps
 ```
 
+You should see this output after running the `jps` command:
+
+```bash
+5616 SecondaryNameNode
+5760 Jps
+5233 NameNode
+4674 NodeManager
+5387 DataNode
+4524 ResourceManager
+```
+
+If you see all six daemons, then it's time to move on the Multi-Node Installation of Hadoop.
+
 Stop all daemons:
 
 ```bash
@@ -656,8 +710,6 @@ Update the following configuration files:
 /opt/hadoop/etc/hadoop/core-site.xml:
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
     <configuration>
         <property>
             <name>fs.default.name</name>
@@ -789,19 +841,36 @@ pi03
 
 #### Copy Hadoop Configuration to the rest of Nodes
 
+SSH into Pi 2 and then Pi 3 and run the following commands:
+
+```bash
+sudo mkdir /opt/hadoop
+sudo chown ubuntu:ubuntu -R /opt/hadoop
+```
+After creating the `/opt/hadoop` directory in Pi 2 and Pi 3 and changing the owner of the directory, SSH back into Pi 1.
+
 Use the following command to copy all files from the master node to the worker nodes:
 
 ```bash
 $ for pi in $(cluster-other-nodes); do rsync -avxP /opt/hadoop $pi:/opt; done
 ```
 
-After everything is copied, you can verify that Hadoop was installed correctly using:
+Then copy the `.bashrc` file from the master node to the worker nodes and source it on all nodes:
 
 ```bash
-$ cluster-cmd hadoop version | grep Hadoop
+$ cluster-scp ~/.bashrc
+$ cluster-cmd source ~/.bashrc
+```
+
+After everything is copied, you can verify that Hadoop was installed correctly using the following command on each node:
+
+```bash
+$ hadoop version | grep Hadoop
 ```
 
 #### Format the HDFS
+
+**Run the following commands only on the master node unless directed otherwise.**
 
 To run for the first time, the HDFS needs to be formatted:
 
@@ -829,24 +898,24 @@ Ensure that everything is working by running the following command on all nodes:
 $ jps
 ```
 
-On the master node, `jps` should return:
+On the master node, `jps` should return a similar output:
 
 ```
-Jps
-NameNode
-SecondaryNameNode
-ResourceManager
+7202 SecondaryNameNode
+6954 NameNode
+7498 Jps
+7389 ResourceManager
 ```
 
-On the worker nodes, `jps` should return:
+On the worker nodes, `jps` should return a similar output:
 
 ```
-Jps
-DataNode
-NodeManager
+3889 Jps
+3684 NodeManager
+3514 DataNode
 ```
 
-Congragulations! You now have a working YARN cluster!
+Congragulations, you now have a working YARN cluster!
 
 ## Spark Installation
 
