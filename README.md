@@ -1172,6 +1172,6 @@ The returned output should be so:
 res0: Long = 2813
 ```
 
-Congratulations, you now have a working Spark Cluster Computer!
+Congratulations, you now have a working Spark Cluster Computer.
 
 **Go forth and do great things!**
