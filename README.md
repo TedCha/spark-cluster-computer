@@ -2,7 +2,7 @@
 Project that details the creation of a Spark Cluster using Raspberry Pi 4 and Ubuntu Server LTS 20.04
 
 ## Introduction
-This project is was last updated 9/10/20!
+This project was last updated 9/10/20!
 
 This project is my own documentation of building a Spark Cluster Computer. I explain from start to finish how to setup a physical Raspberry Pi 4 Cluster Computer and install Apache Hadoop and Apache Spark on the cluster.
 
